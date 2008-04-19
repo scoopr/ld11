@@ -17,9 +17,16 @@ float time;
 int32_t level;
 int32_t score;
 
+float goal;
+
 void timer_reset() {
     time=0;
     gettimeofday(&start_time, NULL);
+}
+
+void init_level() {
+    level+=1;
+    goal=(3+rand()%6)/10.0f;
 }
 
 void timer_update() {
@@ -43,14 +50,25 @@ void quad() {
 void display() {
     timer_update();
     glClearColor(0,0,0,0);
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    float speed = 0.15f + level * 0.01f;
+    float pos = time * speed;
+    
+    glLoadIdentity();
+    glTranslatef(0,0,-1);
+    glScalef(goal,goal,goal);
+    glColor3f(1,0,0);
+    quad();
+    
+    
     glLoadIdentity();
     glTranslatef(0,0,-1);
     glColor3f(1,1,1);
-    float s=time;
-    glScalef(s,s,s);
-    glOrtho(-2,2,-2,2,-1,1);
+    glScalef(pos,pos,pos);
     quad();
+    
+    glutSwapBuffers();
     
 }
 
@@ -61,6 +79,10 @@ void keyboard(unsigned char key, int x, int y) {
         case 27:
         exit(0);
         break;
+        case ' ':
+        init_level();
+        timer_reset();
+        break;
     }
 }
 
@@ -69,12 +91,14 @@ void idle() {
 }
 
 int main(int argc, char **argv) {
+    glutInitDisplayMode(GLUT_RGBA|GLUT_DOUBLE);
     glutInit(&argc, argv);
     glutCreateWindow("GLUT Test");
     glutKeyboardFunc(&keyboard);    
     glutDisplayFunc(&display);
     glutIdleFunc(&idle);
     timer_reset();
+    init_level();
     level=0;
     score=0;
     
