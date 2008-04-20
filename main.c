@@ -1,11 +1,14 @@
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <stdio.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
 
-#include <stdint.h>
 #include <stdlib.h>
 
 #include <sys/time.h>
@@ -13,21 +16,21 @@
 
 struct timeval start_time;
 
-float time;
-int32_t level;
-int32_t score;
+float the_time;
+int level;
+int score;
 int failed;
 
 float goal;
 
 void timer_reset() {
-    time=0;
+    the_time=0;
     gettimeofday(&start_time, NULL);
 }
 
 float position() {
     float speed = 0.15f + level * 0.05f;
-    return time * speed;            
+    return the_time * speed;            
 }
 
 
@@ -51,7 +54,7 @@ void finish_level() {
 void timer_update() {
     struct timeval current_time;
     gettimeofday(&current_time, NULL);
-    time = ( (current_time.tv_sec-start_time.tv_sec) + (current_time.tv_usec-start_time.tv_usec)/1000000.0f);
+    the_time = ( (current_time.tv_sec-start_time.tv_sec) + (current_time.tv_usec-start_time.tv_usec)/1000000.0f);
 }
 
 
