@@ -30,7 +30,7 @@ endif
 
 OBJS=main.o
 
-TARGET=test$(EXE)
+TARGET=redgate$(EXE)
 
 $(TARGET): $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o $(TARGET)

@@ -50,7 +50,6 @@ void init_level() {
     level+=1;
     failed=0;
     goal=(40+rand()%50)/100.0f;
-    printf("score %d\n", score);
 }
 
 
@@ -173,7 +172,7 @@ void idle() {
 int main(int argc, char **argv) {
     glutInitDisplayMode(GLUT_RGBA|GLUT_DOUBLE);
     glutInit(&argc, argv);
-    glutCreateWindow("GLUT Test");
+    glutCreateWindow("redgate");
     glutKeyboardFunc(&keyboard);    
     glutDisplayFunc(&display);
     glutIdleFunc(&idle);
