@@ -19,7 +19,7 @@ ifdef WIN
 endif
 
 ifdef LNX
-	LDFLAGS+=-lGL -lGLU -lglut
+	LDFLAGS+=-lGL -lGLU -lglut -lm
 endif
 
 ifdef OSX

@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 
+// TODO: apple ifdef
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -13,6 +15,8 @@
 
 #include <sys/time.h>
 #include <math.h>
+
+#include <stdarg.h>
 
 struct timeval start_time;
 
@@ -23,33 +27,44 @@ int failed;
 
 float goal;
 
+#define LEEWAY 0.05f
+
+
+
 void timer_reset() {
     the_time=0;
     gettimeofday(&start_time, NULL);
 }
 
+
+
 float position() {
-    float speed = 0.15f + level * 0.05f;
+    float speed = 0.2f + logf(level * 0.05f + 1);
     return the_time * speed;            
 }
+
 
 
 void init_level() {
     timer_reset();
     level+=1;
-    goal=(3+rand()%6)/10.0f;
+    failed=0;
+    goal=(40+rand()%50)/100.0f;
     printf("score %d\n", score);
 }
 
 
+
 void finish_level() {
-    float accuracy = fabs( position() - goal );
-    if(accuracy < 0) {
-        failed=1;
+	float pos=position();
+    if( fabs(goal-pos) < LEEWAY && pos < 1 ) {
+        score += 1;
     } else {
-        score+=(int)(accuracy*10.0f);
+        failed=1;
     }
 }
+
+
 
 void timer_update() {
     struct timeval current_time;
@@ -58,7 +73,11 @@ void timer_update() {
 }
 
 
-void quad() {
+
+void quad(float scale) {
+	glLoadIdentity();
+	glTranslatef(0,0,-1);
+	glScalef(scale, scale, scale);
     glBegin(GL_QUADS);
     glVertex2f(-1,-1);
     glVertex2f( 1,-1); 
@@ -69,30 +88,55 @@ void quad() {
 
 
 
+void print(char *str, ...) {
+	va_list args;
+	int i, len;
+	char temp[1024];
+	int width;
+	va_start(args, str);
+	len=vsnprintf(temp, 1024, str, args);
+	glLoadIdentity();
+
+	width=0;
+	for(i=0; i < len; i++) {
+		width+=glutBitmapWidth( GLUT_BITMAP_HELVETICA_18 , temp[i]);
+	}
+
+	glRasterPos2f( -width/(float)glutGet(GLUT_WINDOW_WIDTH)  , 0.8f);
+	for(i=0; i < len; i++) {
+		glutBitmapCharacter( GLUT_BITMAP_9_BY_15 , temp[i]);
+	}
+	va_end(args);
+}
+
+
+
 void display() {
     timer_update();
     glClearColor(0,0,0,0);
     glClear(GL_COLOR_BUFFER_BIT);
 
+	glColor3f(1,1,1);
+
+    float pos = position();
+
+	if( pos > 1) failed=1;
+
     if(failed) {
+		print("%d", score);
+    	glutSwapBuffers();
         return;
     }
     
-    float pos = position();
-    
-    glLoadIdentity();
-    glTranslatef(0,0,-1);
-    glScalef(goal,goal,goal);
     glColor3f(1,0,0);
-    quad();
+    quad(goal+LEEWAY);
+    glColor3f(0,0,0);
+    quad(goal-LEEWAY);
     
-    
-    glLoadIdentity();
-    glTranslatef(0,0,-1);
     glColor3f(1,1,1);
-    glScalef(pos,pos,pos);
-    quad();
+    quad(pos);
     
+	print("%d", score);
     glutSwapBuffers();
     
 }
@@ -105,15 +149,26 @@ void keyboard(unsigned char key, int x, int y) {
         exit(0);
         break;
     case ' ':
-        if(!failed) finish_level();
-        init_level();
+    	if(failed) {
+	    	failed=0;
+    		level=0;
+    		score=0;
+    		init_level();
+    	} else {
+	        finish_level();
+	        if(!failed) init_level();    		
+    	}
         break;
     }
 }
 
+
+
 void idle() {
     glutPostRedisplay();
 }
+
+
 
 int main(int argc, char **argv) {
     glutInitDisplayMode(GLUT_RGBA|GLUT_DOUBLE);
