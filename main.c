@@ -40,11 +40,11 @@ void init_level() {
 
 
 void finish_level() {
-    float accuracy = 1 - fabs( position() - goal );
+    float accuracy = fabs( position() - goal );
     if(accuracy < 0) {
         failed=1;
     } else {
-        score+=accuracy;
+        score+=(int)(accuracy*10.0f);
     }
 }
 
@@ -98,10 +98,10 @@ void display() {
 
 void keyboard(unsigned char key, int x, int y) {
     switch(key) {
-        case 27:
+    case 27:
         exit(0);
         break;
-        case ' ':
+    case ' ':
         if(!failed) finish_level();
         init_level();
         break;
